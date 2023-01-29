@@ -10,4 +10,6 @@ public class User : BaseEntity
     public string LastName { get; set; } = string.Empty;
     [StringLength(20)]
     public string PhoneNumber { get; set; } = string.Empty;
+
+    public UserRole Role { get; set; }
 }
