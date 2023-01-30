@@ -1,4 +1,4 @@
-﻿namespace Messager.Models;
+﻿namespace Messager;
 
 public class SendResultSMS
 {

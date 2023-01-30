@@ -1,6 +1,7 @@
 ﻿using Data;
 using Data.Interfaces;
 using Data.Repositories;
+using Messager;
 using Microsoft.EntityFrameworkCore;
 
 namespace API
@@ -23,6 +24,8 @@ namespace API
             services.AddTransient<IPaymentInterface, PaymentRepository>();
             services.AddTransient<IUserInterface, UserRepository>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
+
+            services.AddTransient<IMessageService, Message>();
         }
 
         public static void AddApplicationPipeline(this WebApplication app)

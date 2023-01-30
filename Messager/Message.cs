@@ -4,9 +4,9 @@ using System.Net.Http.Headers;
 using System.Text;
 
 namespace Messager;
-public class Message
+public class Message : IMessageService
 {
-	public string TOKEN = string.Empty;
+	private string TOKEN = string.Empty;
 
 	/// <summary>
 	/// Initialize intance and token
@@ -15,6 +15,48 @@ public class Message
 	{
 		GetToken();
 	}
+
+
+    /// <summary>
+    /// Send sms with phone number
+    /// </summary>
+    /// <param name="phoneNumber"></param>
+    /// <returns>SendResultSMS</returns>
+    public async Task<SendResultSMS> SendSMSAsync(string phoneNumber)
+    {
+        int code = GetRandomCode();
+        var sms = new SMS()
+		{
+			mobile_phone = phoneNumber,
+			from = "4546",
+			message = CreateSMS(code),
+			callback_url = "https://software-engineer.uz"
+		};
+		using var httpClient = new HttpClient();
+        var httpContent = new StringContent(JsonConvert.SerializeObject(sms),
+            Encoding.UTF8, "application/json");
+
+		var htm = new HttpRequestMessage(HttpMethod.Post, Constants.Send_SMS_URL);
+		htm.Content = httpContent;
+		htm.Headers.Authorization = new AuthenticationHeaderValue("Bearer", TOKEN);
+
+        var httpResponse = await httpClient.SendAsync(htm);
+
+		
+		if (httpResponse.IsSuccessStatusCode)
+		{
+			var result = new SendResultSMS("Successfully sent!");
+			result.Success = true;
+			result.Code = code;
+			return result;
+        }
+		else
+		{
+            var result = new SendResultSMS("Something went wrong!");
+            result.Success = false;
+            return result;
+        }
+    }
 
 
 	/// <summary>
@@ -54,47 +96,6 @@ public class Message
             TOKEN = LoginAsync().Result;
         }
 	}
-
-    /// <summary>
-    /// Send sms with phone number
-    /// </summary>
-    /// <param name="phoneNumber"></param>
-    /// <returns>SendResultSMS</returns>
-    public async Task<SendResultSMS> SendSMSAsync(string phoneNumber)
-	{
-		int code = GetRandomCode();
-		var sms = new SMS()
-		{
-			mobile_phone = phoneNumber,
-			from = "4546",
-			message = CreateSMS(code),
-			callback_url = "https://software-engineer.uz"
-		};
-		using var httpClient = new HttpClient();
-        var httpContent = new StringContent(JsonConvert.SerializeObject(sms),
-            Encoding.UTF8, "application/json");
-
-		var htm = new HttpRequestMessage(HttpMethod.Post, Constants.Send_SMS_URL);
-		htm.Content = httpContent;
-		htm.Headers.Authorization = new AuthenticationHeaderValue("Bearer", TOKEN);
-
-        var httpResponse = await httpClient.SendAsync(htm);
-
-		
-		if (httpResponse.IsSuccessStatusCode)
-		{
-			var result = new SendResultSMS("Successfully sent!");
-			result.Success = true;
-			result.Code = code;
-			return result;
-        }
-		else
-		{
-            var result = new SendResultSMS("Something went wrong!");
-            result.Success = false;
-            return result;
-        }
-    }
 
 	/// <summary>
 	/// Creates new random code with 5 digits
